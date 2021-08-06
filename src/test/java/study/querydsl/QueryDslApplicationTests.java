@@ -1,4 +1,4 @@
-package study.querydsl;
+/package study.querydsl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +8,7 @@ class QueryDslApplicationTests {
 
     @Test
     void contextLoads() {
+        // 소스트리 푸시 계정 테스트1
     }
 
 }
