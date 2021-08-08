@@ -8,7 +8,7 @@ class QueryDslApplicationTests {
 
     @Test
     void contextLoads() {
-        // 소스트리 푸시 계정 테스트2
+        // 소스트리 푸시 계정 테스트3
     }
 
 }
