@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.springframework.boot' version '2.5.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     //querydsl 추가
     id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
@@ -31,6 +31,13 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.guava:guava:26.0-jre', 'com.google.code.findbugs:jsr305:3.0.2', 'org.javassist:javassist:3.27.0-GA'
+    }
+}
+
 //querydsl 추가 시작
 def querydslDir = "$buildDir/generated/querydsl"
 querydsl {
