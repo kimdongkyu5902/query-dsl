@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-@Commit
 class MemberTest {
     @PersistenceContext
     EntityManager em;
