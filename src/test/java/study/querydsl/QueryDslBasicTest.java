@@ -16,9 +16,11 @@ import javafx.beans.binding.BooleanExpression;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.sql.init.dependency.AbstractBeansOfTypeDependsOnDatabaseInitializationDetector;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
@@ -245,5 +247,64 @@ public class QueryDslBasicTest {
         boolean loaded =
             emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
         assertThat(loaded).as("페치 조인 적용").isTrue();
+    }
+
+    @Test
+    public void subQuery() throws Exception {
+        QMember memberSub = new QMember("memberSub");
+
+        List<Member> result = queryFactory
+            .selectFrom(member)
+            .where(member.age.eq(
+                JPAExpressions // 서브쿼리
+                    .select(memberSub.age.max())
+                    .from(memberSub)
+            ))
+            .fetch();
+
+        assertThat(result).extracting("age")
+            .containsExactly(40);
+    }
+
+    @Test
+    public void subQuery_select() throws Exception {
+        QMember memberSub = new QMember("memberSub");
+
+        List<Tuple> fetch = queryFactory
+            .select(member.username,
+                JPAExpressions
+                    .select(memberSub.age.avg())
+                    .from(memberSub)
+            ).from(member)
+            .fetch();
+
+        for (Tuple tuple : fetch) {
+            System.out.println("username = " + tuple.get(member.username));
+            System.out.println("age = " +
+                tuple.get(JPAExpressions.select(memberSub.age.avg())
+                    .from(memberSub)));
+        }
+    }
+
+    @Test
+    public void case1() throws Exception {
+        List<String> result = queryFactory
+            .select(member.age
+                .when(10).then("열살")
+                .when(20).then("스무살")
+                .otherwise("기타"))
+            .from(member)
+            .fetch();
+    }
+
+    @Test
+    public void case2() throws Exception {
+        List<String> result = queryFactory
+            .select(new CaseBuilder()
+                .when(member.age.between(0, 20)).then("0~20살")
+                .when(member.age.between(21, 30)).then("21~30살")
+                .otherwise("기타"))
+            .from(member)
+            .fetch();
     }
 }
