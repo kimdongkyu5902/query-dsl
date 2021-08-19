@@ -1,26 +1,26 @@
 package study.querydsl;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
-import static study.querydsl.entity.QTeam.*;
+import static study.querydsl.entity.QTeam.team;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import javafx.beans.binding.BooleanExpression;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
-import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.sql.init.dependency.AbstractBeansOfTypeDependsOnDatabaseInitializationDetector;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
@@ -367,5 +367,43 @@ public class QueryDslBasicTest {
                 )
             ).from(member)
             .fetch();
+    }
+
+    @Test
+    public void BooleanBuilder() throws Exception {
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = serchMember1(usernameParam, ageParam);
+        Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> serchMember1(String usernameParam, Integer ageParam) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (usernameParam != null)
+            builder.and(member.username.eq(usernameParam));
+        if (ageParam != null)
+            builder.and(member.age.eq(ageParam));
+
+        return queryFactory
+            .selectFrom(member)
+            .where(builder)
+            .fetch();
+    }
+
+    @Test
+    public List<Member> serchMember2(String usernameParam, Integer ageParam) throws Exception {
+        return queryFactory
+            .selectFrom(member)
+            .where(usernameEq(usernameParam), ageEq(ageParam))
+            .fetch();
+    }
+
+    private Predicate ageEq(Integer ageParam) {
+        return ageParam != null ? member.age.eq(ageParam) : null;
+    }
+
+    private Predicate usernameEq(String usernameParam) {
+        return usernameParam != null ? member.username.eq(usernameParam) : null;
     }
 }
