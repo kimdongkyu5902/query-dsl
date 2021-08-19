@@ -307,4 +307,65 @@ public class QueryDslBasicTest {
             .from(member)
             .fetch();
     }
+
+    @Test
+    public void tupleTest() throws Exception {
+        // 하나
+        List<String> result = queryFactory
+            .select(member.username)
+            .from(member)
+            .fetch();
+
+        // 둘 이상
+        List<Tuple> result2 = queryFactory
+            .select(member.username, member.age)
+            .from(member)
+            .fetch();
+
+        for (Tuple tuple : result2) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("username=" + username);
+            System.out.println("age=" + age);
+        }
+    }
+
+    @Test
+    public void dtoQuerydsl() throws Exception {
+        List<MemberDto> result1 = queryFactory
+            .select(Projections.bean(MemberDto.class,
+                member.username,
+                member.age))
+            .from(member)
+            .fetch();
+
+        List<MemberDto> result2 = queryFactory
+            .select(Projections.fields(MemberDto.class,
+                member.username,
+                member.age))
+            .from(member)
+            .fetch();
+
+        List<MemberDto> result3 = queryFactory
+            .select(Projections.constructor(MemberDto.class,
+                member.username,
+                member.age))
+            .from(member)
+            .fetch();
+    }
+
+    @Test
+    public void findUserDto() throws Exception {
+        QMember memberSub = new QMember("memberSub");
+        queryFactory
+            .select(Projections.fields(MemberDto.class,
+                member.username.as("name"),
+                ExpressionUtils.as(
+                    JPAExpressions
+                    .select(memberSub.age.max())
+                    .from(memberSub), "age")
+                )
+            ).from(member)
+            .fetch();
+    }
 }
