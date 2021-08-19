@@ -406,4 +406,33 @@ public class QueryDslBasicTest {
     private Predicate usernameEq(String usernameParam) {
         return usernameParam != null ? member.username.eq(usernameParam) : null;
     }
+
+    @Test
+    public void bulk() throws Exception {
+        queryFactory
+            .update(member)
+            .set(member.username, "비회원")
+            .where(member.age.lt(28))
+            .execute();
+
+        queryFactory
+            .update(member)
+            .set(member.age, member.age.add(1))
+            .execute();
+
+        queryFactory
+            .delete(member)
+            .where(member.age.gt(10))
+            .execute();
+    }
+
+     @Test
+     public void sqlFuction() throws Exception {
+         queryFactory
+             .select(Expressions.stringTemplate(
+                 "function('replace', {0}, {1}, {2})",
+                  member.username, "member", "M"))
+             .from(member)
+             .fetch();
+     }
 }
