@@ -1,4 +1,4 @@
-package study.querydsl;
+package study.querydsl.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +12,6 @@ import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.dto.MemberTeamDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.Team;
-import study.querydsl.repository.MemberJpaRepository;
 
 @SpringBootTest
 @Transactional
